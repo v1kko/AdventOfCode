@@ -21,7 +21,7 @@ module solvers
     end subroutine qsort !standard C library qsort
   end interface
   type solver_interface_p
-    procedure(solver_interface), pointer, nopass :: p
+    procedure(solver_interface), pointer, nopass :: p => null()
   end type
   type (solver_interface_p) :: solver_list(28)
 contains
@@ -37,6 +37,8 @@ include "9.f90"
 include "10.f90"
 include "11.f90"
 include "12.f90"
+include "13.f90"
+include "14.f90"
 
 subroutine init_solvers()
 implicit none
@@ -52,17 +54,56 @@ implicit none
   solver_list(10)%p => solver10
   solver_list(11)%p => solver11
   solver_list(12)%p => solver12
+  solver_list(13)%p => solver13
+  solver_list(14)%p => solver14
 end subroutine
+end module
+
+module input_reader
+use solvers, only :  char_p
+contains
+  subroutine reader(input,day)
+    type(char_p), allocatable, intent(out) :: input(:)
+    integer :: day
+    integer :: nlines, fd, size_read
+    logical :: found
+    character(len=80) :: filename, buffer
+    nlines = 0
+
+    write(filename,'(I2A)') day, ".txt"
+    filename = adjustl(filename)
+    inquire(file=filename,exist=found)
+    if (.not. found ) call abort()
+    open(newunit=fd, file=filename)
+    do
+      read(fd, *, end=10)
+      nlines = nlines + 1
+    enddo
+10  rewind(fd)
+    allocate(input(nlines))
+    do nn = 1,nlines
+      input(nn)%p = ''
+      do
+        read(fd,'(A)',advance='no', size= size_read, iostat=iostat) buffer
+        if (is_iostat_eor(iostat)) then
+          input(nn)%p = input(nn)%p // buffer(:size_read)
+          exit
+        else
+          input(nn)%p = input(nn)%p // buffer
+        endif
+      enddo
+    enddo
+    close(fd)
+  end subroutine
 end module
 
 program main
 use solvers, only : solver_list, init_solvers, char_p
+use input_reader, only : reader
 use iso_fortran_env, only: int64
 implicit none
-integer :: n_args, n, nn, day, l, part, fd, nlines, iostat, size_read
-logical :: found
+integer :: n_args, n, day, l, part
 character(len=3) :: arg
-character(len=80) :: buffer
 integer(int64) :: answer
 type(char_p), allocatable :: input(:)
 
@@ -70,8 +111,23 @@ call init_solvers()
 
 n_args =  command_argument_count()
 
+if (n_args == 0) then
+  write(*,*) "Execute for single solutions with <program> [5b, ...]"
+  write(*,*) "Executing all"
+  do day = 1,size(solver_list)
+    if (.not.associated(solver_list(day)%p)) cycle
+    call reader(input,day)
+    call solver_list(day)%p(1,input, answer)
+    write(*,"(I2,A)",advance='no') day,"a"
+    write(*,*) answer
+    call solver_list(day)%p(2,input, answer)
+    write(*,"(I2,A)",advance='no') day,"b"
+    write(*,*) answer
+    deallocate(input)
+  end do
+  return
+end if
 do n=1,n_args
-  nlines = 0
   call get_command_argument(n, arg, l)
   read(arg(:l-1),*) day
   if (arg(l:) == "a") then
@@ -81,28 +137,8 @@ do n=1,n_args
   else
   call abort()
   endif 
-  inquire(file=arg(:l-1)//".txt",exist=found)
-  if (.not. found ) call abort()
-  open(newunit=fd, file=arg(:l-1)//".txt")
-  do
-    read(fd, *, end=10)
-    nlines = nlines + 1
-  enddo
-10 rewind(fd)
-  allocate(input(nlines))
-  do nn = 1,nlines
-    input(nn)%p = ''
-    do
-      read(fd,'(A)',advance='no', size= size_read, iostat=iostat) buffer
-      if (is_iostat_eor(iostat)) then
-        input(nn)%p = input(nn)%p // buffer(:size_read)
-        exit
-      else
-        input(nn)%p = input(nn)%p // buffer
-      endif
-    enddo
-  enddo
-  close(fd)
+  
+  call reader(input, day)
   call solver_list(day)%p(part,input, answer)
   write(*,*) arg, answer
   deallocate(input)

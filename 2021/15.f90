@@ -2,15 +2,16 @@ subroutine solver15(part,input,ans)
   use iso_fortran_env, only: int64
   implicit none
   integer(int64) :: ans
-  integer        :: part, n, x_l, y_l, x, y, x_o, y_o
+  integer        :: part, n, x_l, y_l, x, y, x_o, y_o, idx
   type(char_p)   :: input(:)
   integer*1      :: inval(len(input(1)%p), size(input))
   integer*1      :: temp(len(input(1)%p), size(input))
-  integer, allocatable       :: map(:,:)
-  integer*1, allocatable     :: val(:,:)
-  integer        :: loc(2)
-  logical, allocatable :: curr(:, :), done(:, :)
+  integer        :: pque_c
   character(len=20) :: in_l
+  integer  , allocatable     :: map(:,:)
+  integer  , allocatable     :: pque(:,:)
+  integer*1, allocatable     :: val(:,:)
+  logical, allocatable       :: curr(:, :), done(:, :)
 
   x_l = len(input(1)%p)
   y_l = size(input)
@@ -24,12 +25,15 @@ subroutine solver15(part,input,ans)
   allocate(done(x_l,y_l))
   allocate(val(x_l,y_l))
   allocate(map(x_l,y_l))
+  allocate(pque(x_l*y_l,3))
 
   map = huge(map(1,1))
   map(1,1) = 0
   done = .false.
   curr = .false.
   curr(1,1) = .true.
+  pque_c = 1
+  pque(1,:) = (/0,1,1/)
 
   write(in_l,*) x_o
   do n=1,y_o
@@ -50,36 +54,27 @@ subroutine solver15(part,input,ans)
   end if
   
   do while(.not.done(x_l,y_l))
-    loc = minloc(map,mask=curr)
-    x = loc(1)
-    y = loc(2)
+    idx = minloc(pque(:pque_c,1),1)
+    x = pque(idx,2)
+    y = pque(idx,3)
     curr(x,y) = .false.
     done(x,y) = .true.
 
     if (x < x_l) then
-      if (.not.done(x+1,y)) then
-        map(x+1,y) = min(map(x+1,y),map(x,y) + val(x+1,y))
-        curr(x+1,y) = .true.
-      end if
+      call work(x+1,y,x,y)
     end if
     if (x > 1) then
-      if (.not.done(x-1,y)) then
-        map(x-1,y) = min(map(x-1,y),map(x,y) + val(x-1,y))
-        curr(x-1,y) = .true.
-      end if
+      call work(x-1,y,x,y)
     end if
     if (y < y_l) then
-      if (.not.done(x,y+1)) then
-        map(x,y+1) = min(map(x,y+1),map(x,y) + val(x,y+1))
-        curr(x,y+1) = .true.
-      end if
+      call work(x,y+1,x,y)
     end if
     if (y > 1) then
-      if (.not.done(x,y-1)) then
-        map(x,y-1) = min(map(x,y-1),map(x,y) + val(x,y-1))
-        curr(x,y-1) = .true.
-      end if
+      call work(x,y-1,x,y)
     end if
+
+    pque(idx,:) = pque(pque_c,:)
+    pque_c = pque_c -1
         
   end do
 
@@ -89,5 +84,32 @@ subroutine solver15(part,input,ans)
   deallocate(done)
   deallocate(val)
   deallocate(map)
+  deallocate(pque)
+
+contains 
+
+subroutine work(xx, yy, x, y)
+  implicit none
+  integer, intent(in) :: xx, yy, x, y
+  integer             :: idx = 0, n
+
+  if (.not.done(xx,yy)) then
+    map(xx,yy) = min(map(xx,yy),map(x,y) + val(xx,yy))
+    if (curr(xx,yy)) then
+      do n = 1,pque_c
+        if (all(pque(n,2:3).eq.(/xx,yy/))) then
+          idx = n
+          exit
+        end if
+      end do
+      pque(idx,1) =  map(xx,yy)
+    else 
+      pque_c = pque_c + 1
+      pque(pque_c,:) = (/ map(xx,yy),xx,yy /)
+      curr(xx,yy) = .true.
+    end if
+  end if
+end subroutine
+
 
 end subroutine

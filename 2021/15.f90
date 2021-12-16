@@ -9,7 +9,7 @@ subroutine solver15(part,input,ans)
   integer        :: pque_c
   character(len=20) :: in_l
   integer  , allocatable     :: map(:,:)
-  integer  , allocatable     :: pque(:,:)
+  integer  , allocatable     :: pque(:), pque_v(:,:)
   integer*1, allocatable     :: val(:,:)
   logical, allocatable       :: curr(:, :), done(:, :)
 
@@ -25,7 +25,8 @@ subroutine solver15(part,input,ans)
   allocate(done(x_l,y_l))
   allocate(val(x_l,y_l))
   allocate(map(x_l,y_l))
-  allocate(pque(x_l*y_l,3))
+  allocate(pque(x_l*y_l))
+  allocate(pque_v(2,x_l*y_l))
 
   map = huge(map(1,1))
   map(1,1) = 0
@@ -33,7 +34,8 @@ subroutine solver15(part,input,ans)
   curr = .false.
   curr(1,1) = .true.
   pque_c = 1
-  pque(1,:) = (/0,1,1/)
+  pque_v(1:2,1) = (/1,1/)
+  pque(1) = 1
 
   write(in_l,*) x_o
   do n=1,y_o
@@ -54,9 +56,9 @@ subroutine solver15(part,input,ans)
   end if
   
   do while(.not.done(x_l,y_l))
-    idx = minloc(pque(:pque_c,1),1)
-    x = pque(idx,2)
-    y = pque(idx,3)
+    idx = minloc(pque(1:pque_c),1)
+    x = pque_v(1,idx)
+    y = pque_v(2,idx)
     curr(x,y) = .false.
     done(x,y) = .true.
 
@@ -73,7 +75,8 @@ subroutine solver15(part,input,ans)
       call work(x,y-1,x,y)
     end if
 
-    pque(idx,:) = pque(pque_c,:)
+    pque(idx) = pque(pque_c)
+    pque_v(1:2,idx) = pque_v(1:2,pque_c)
     pque_c = pque_c -1
         
   end do
@@ -85,27 +88,26 @@ subroutine solver15(part,input,ans)
   deallocate(val)
   deallocate(map)
   deallocate(pque)
+  deallocate(pque_v)
 
 contains 
 
 subroutine work(xx, yy, x, y)
   implicit none
   integer, intent(in) :: xx, yy, x, y
-  integer             :: idx = 0, n
+  integer             :: idx
 
   if (.not.done(xx,yy)) then
     map(xx,yy) = min(map(xx,yy),map(x,y) + val(xx,yy))
     if (curr(xx,yy)) then
-      do n = 1,pque_c
-        if (all(pque(n,2:3).eq.(/xx,yy/))) then
-          idx = n
-          exit
-        end if
+      do idx = 1,pque_c
+        if (all(pque_v(1:2,idx).eq.(/xx,yy/))) exit
       end do
-      pque(idx,1) =  map(xx,yy)
+      pque(idx) =  map(xx,yy)
     else 
       pque_c = pque_c + 1
-      pque(pque_c,:) = (/ map(xx,yy),xx,yy /)
+      pque(pque_c) = map(xx,yy)
+      pque_v(1:2,pque_c) = (/ xx,yy /)
       curr(xx,yy) = .true.
     end if
   end if

@@ -41,6 +41,8 @@ include "13.f90"
 include "14.f90"
 include "15.f90"
 include "16.f90"
+include "17.f90"
+include "18.f90"
 
 subroutine init_solvers()
 implicit none
@@ -60,6 +62,8 @@ implicit none
   solver_list(14)%p => solver14
   solver_list(15)%p => solver15
   solver_list(16)%p => solver16
+  solver_list(17)%p => solver17
+  solver_list(18)%p => solver18
 end subroutine
 end module
 

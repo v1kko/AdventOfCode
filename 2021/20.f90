@@ -57,5 +57,7 @@ subroutine solver20(part,input,ans)
   picture(:,size(picture,2)-passes:size(picture,2)) = 0
   
   ans  = sum(picture)
+  deallocate(picture)
+  deallocate(newpicture)
 
 end subroutine

@@ -7,7 +7,7 @@ subroutine solver22(part,input,ans)
   end type
   type(char_p)   :: input(:)
   integer(int64) :: ans
-  integer        :: part, n, idx(2)
+  integer        :: part, n, idx(2), n_boxes
   type(boxx)     :: boxes(size(input))
   logical        :: init_area(-50:50,-50:50,-50:50)
   init_area = .false.
@@ -38,27 +38,37 @@ subroutine solver22(part,input,ans)
     read(input(n)%p(idx(1):),*) boxes(n)%z2
   end do
 
+  ans = 0
+
   if (part == 1) then
+    n_boxes = 0
     do n = 1, size(input)
-      init_area( max(boxes(n)%x1,-50):min(boxes(n)%x2,50) &
-               , max(boxes(n)%y1,-50):min(boxes(n)%y2,50) &
-               , max(boxes(n)%z1,-50):min(boxes(n)%z2,50) ) = boxes(n)%toggle
-      ans = count(init_area)
+      boxes(n)%x1 = max(boxes(n)%x1,-50)
+      boxes(n)%x2 = min(boxes(n)%x2, 50)
+      boxes(n)%y1 = max(boxes(n)%y1,-50)
+      boxes(n)%y2 = min(boxes(n)%y2, 50)
+      boxes(n)%z1 = max(boxes(n)%z1,-50)
+      boxes(n)%z2 = min(boxes(n)%z2, 50)
+      if (has_area(boxes(n))) then
+        n_boxes = n_boxes + 1
+        boxes(n_boxes) = boxes(n)
+      end if
     end do
-    return
+  else
+    n_boxes = size(boxes)
   end if
 
-  ans = 0
-  do n = 1, size(boxes)
+  do n = 1, n_boxes
     if (boxes(n)%toggle) ans = ans + visible(boxes(n),boxes(n+1:size(boxes)))
   end do
 
 contains
 
-recursive function visible(box, boxes) result(nvis)
+pure recursive function visible(box, boxes) result(nvis)
   implicit none
-  type(boxx) :: box, boxes(:), newbox
   integer(int64)   :: nvis
+  type(boxx), intent(in) :: box, boxes(:)
+  type(boxx) :: newbox
   integer           :: n, xn, yn, zn
   nvis = 0
     
@@ -112,9 +122,9 @@ recursive function visible(box, boxes) result(nvis)
 
 end function
 
-function intersect(a,b)
+elemental function intersect(a,b)
   implicit none
-  type(boxx) :: a, b
+  type(boxx), intent(in) :: a, b
   logical :: intersect
 
   if ( (b%x1 <= a%x2) .and. (b%x2 >= a%x1) &
@@ -126,9 +136,9 @@ function intersect(a,b)
   end if
 end function
 
-function has_area(box)
+elemental function has_area(box)
   implicit none
-  type(boxx) :: box
+  type(boxx), intent(in) :: box
   logical :: has_area
   if ( (box%x1 > box%x2) &
   .or. (box%y1 > box%y2) &
@@ -139,9 +149,9 @@ function has_area(box)
   end if
 end function
 
-function area(box)
+elemental function area(box)
   implicit none
-  type(boxx) :: box
+  type(boxx), intent(in) :: box
   integer(int64) :: area
   area = int(box%x2+1-box%x1,int64) &
        * int(box%y2+1-box%y1,int64) &

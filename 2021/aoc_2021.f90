@@ -47,6 +47,7 @@ include "20.f90"
 include "21.f90"
 include "22.f90"
 include "23_2.f90"
+include "24.f90"
 include "25.f90"
 
 subroutine init_solvers()
@@ -73,6 +74,7 @@ implicit none
   solver_list(21)%p => solver21
   solver_list(22)%p => solver22
   solver_list(23)%p => solver23
+  solver_list(24)%p => solver24
   solver_list(25)%p => solver25
 end subroutine
 end module

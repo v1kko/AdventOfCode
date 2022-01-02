@@ -49,7 +49,7 @@ subroutine solver23(part,input,ans)
   ncand = 1
 
   do while (cur /= final)
-    idx = minloc(scores(:ncand),1)
+    idx = minloc(scores(:ncand),1,back=.true.)
     cur = candidates(idx)
     score = scores(idx)
     candidates(idx) = candidates(ncand)

@@ -55,5 +55,5 @@ subroutine solver25(part,input,ans)
     end do
     if (all((seabed3-seabed)==0)) exit  
   end do
-
+  if (part == 2) ans = 0
 end subroutine

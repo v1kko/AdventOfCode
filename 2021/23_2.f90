@@ -47,6 +47,7 @@ subroutine solver23(part,input,ans)
   candidates(1) = start
   scores(1) = 0
   ncand = 1
+  score = 0
 
   do while (cur /= final)
     idx = minloc(scores(:ncand),1,back=.true.)
@@ -60,7 +61,6 @@ subroutine solver23(part,input,ans)
     call get_candidates(cur, score)
   end do
 
-  write(*,*) start, final, score
   ans = score
 
 

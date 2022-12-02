@@ -98,7 +98,7 @@ addchar:
     jmp addchar
 
 end_addchar:
-    ; Set up parameters and call the C function
+    ; Set up parameters and write to stdout
     mov rax, NUM_write    
     mov  rdi, 1            ; file descriptor stdout
     mov rsi, input        ; buffer

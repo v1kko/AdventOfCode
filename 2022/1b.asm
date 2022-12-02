@@ -103,12 +103,13 @@ end:
     mov [cur], byte 10 ; newline
     dec cur
 
+    mov temp, 10 ; divisor
+
 addchar:
     cmp count,qword 0
     je end_addchar
 
     xor rdx, rdx ; set to zero
-    mov temp, 10
     idiv temp
 
     add dl, byte 48

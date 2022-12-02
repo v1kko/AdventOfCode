@@ -1,6 +1,11 @@
-all: 1a.exe
+SRCS=$(wildcard *.asm)
+EXE=$(SRCS:.asm=.exe)
+DEBUG=$(SRCS:.asm=.debug)
+.PRECIOUS: %.o %.o_debug
 
-debug: 1a.debug
+all: ${EXE}
+
+debug: ${DEBUG}
 
 %.debug: %.o_debug Makefile
 	ld $< -o $@ 
@@ -8,7 +13,6 @@ debug: 1a.debug
 %.exe: %.o Makefile
 	ld $< -o $@ 
 
-.PRECIOUS: %.o
 %.o: %.asm Makefile
 	nasm $< -felf64 -o $@
 
@@ -16,4 +20,4 @@ debug: 1a.debug
 	nasm $< -felf64 -o $@
 
 clean:
-	rm -rf *.o *.exe *.debug
+	rm -rf *.o *.o_debug *.exe *.debug

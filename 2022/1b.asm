@@ -5,9 +5,6 @@ default rel
 
 global _start
 
-section .readonly
-  bases: dq 1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1, 0
-
 SECTION .bss
   input: RESB max_rw_len
 
@@ -18,8 +15,8 @@ SECTION .bss
 %define maximum3 r15       ;REGISTER max elf amount
 %define eof     r12       ;REGISTER address of end of input
 %define number  r13       ;REGISTER number we are decoding
-%define temp    r14       ;REGISTER number we are decoding
-%define temp_b  r14b      ;REGISTER number we are decoding
+%define temp    r14       ;REGISTER temporary
+%define temp_b  r14b      ;REGISTER temporary byte
 %define count   r9
 
 SECTION .text
@@ -67,7 +64,7 @@ newline:
     cmp [cur], byte 10 ; is there a newline
     je newelf
 
-    mov number, qword 0
+    xor number, number
     jmp begin
   
 newelf:
@@ -88,10 +85,10 @@ newelf:
 
 endnewelf:
 
-    mov amount, qword 0
+    xor amount, amount
     inc cur
 
-    mov number, qword 0
+    xor number, number
     jmp begin
 
 end:

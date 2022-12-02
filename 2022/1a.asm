@@ -5,21 +5,16 @@ default rel
 
 global _start
 
-section .readonly
-  bases: dq 1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1, 0
-
 SECTION .bss
   input: RESB max_rw_len
 
 %define cur     r8        ;REGISTER for keeping track of where we are
 %define amount  r9        ;REGISTER cur elf amount
 %define maximum r10       ;REGISTER max elf amount
-%define elf     r11       ;REGISTER which elf has the max amount
 %define eof     r12       ;REGISTER address of end of input
 %define number  r13       ;REGISTER number we are decoding
-%define temp    r14       ;REGISTER number we are decoding
-%define temp_b  r14b      ;REGISTER number we are decoding
-%define curelf  r15       ;REGISTER current elf
+%define temp    r14       ;REGISTER temporary
+%define temp_b  r14b      ;REGISTER temporary byte
 %define count   r9
 
 SECTION .text
@@ -34,11 +29,9 @@ _start:
 
     ; prepare registers
     mov cur, input
-    mov curelf, 0
-    mov amount, 0
-    mov maximum, 0
-    mov number, 0
-    mov elf, -1
+    xor amount, amount
+    xor maximum, maximum
+    xor number, number
     mov eof, input
     add eof, rax  ; Add the number of bytes read
     
@@ -50,7 +43,7 @@ begin:
     je newline
 
     ; Create our number
-    mov temp, qword 0
+    xor temp, temp
     mov temp_b, [cur]
     imul number,  qword 10
     sub temp_b, byte 48
@@ -67,19 +60,17 @@ newline:
     cmp [cur], byte 10 ; is there a newline
     je newelf
 
-    mov number, qword 0
+    xor number, number
     jmp begin
   
 newelf:
     cmp amount, maximum
     cmova maximum, amount
-    cmova elf, curelf
 
-    mov amount, qword 0
-    inc elf
+    xor amount, amount
     inc cur
 
-    mov number, qword 0
+    xor number, number
     jmp begin
 
 end:

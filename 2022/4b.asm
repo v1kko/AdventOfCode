@@ -1,22 +1,14 @@
 default rel
-%define NUM_read 0
+
+%define NUM_read  0
 %define NUM_write 1
+%define NUM_brk   12
 %define max_rw_len 0x7ffff000
 
+section .text
 global _start
 
-SECTION .bss
-  input: RESB max_rw_len
-
-SECTION .text
 _start:
-
-    ; read in our input, oneshot 
-    mov rax, NUM_read
-    mov rdi, 0            ; file descriptor stdin
-    mov rsi, input        ; buffer
-    mov rdx, max_rw_len   ; maximum read size
-    syscall
 
 %define cur        r8        ;REGISTER for keeping track of where we are
 %define eof        r9        ;REGISTER address of end of input
@@ -28,8 +20,26 @@ _start:
 %define elf1_high  ecx 
 %define elf2_low   edx 
 %define elf2_high  esi 
-%define number     esp
 %define state      edi
+%define number     esp
+%define input      rbp
+
+    ; Allocate memory
+    mov rax, NUM_brk
+    xor rdi, rdi
+    syscall
+    mov input, rax
+    lea rdi, [rax + max_rw_len]
+    mov rax, NUM_brk
+    syscall
+
+    ; read in our input, oneshot 
+    mov rax, NUM_read
+    xor rdi, rdi          ; file descriptor stdin
+    mov rsi, input        ; buffer
+    mov rdx, max_rw_len   ; maximum read size
+    syscall
+
 
     ; prepare registers
     mov cur, input ; cursor for input
@@ -111,12 +121,12 @@ addchar:
 end_addchar:
     ; Set up parameters and write to stdout
     mov rax, NUM_write    
-    mov  rdi, 1            ; file descriptor stdout
+    mov  edi, 1            ; file descriptor stdout
     mov rsi, input        ; buffer
-    mov rdx, 10           ; count
+    mov edx, 10           ; count
     syscall
     
-    mov  rdi,0      ; result
-    mov  rax,60      ; exit(2)
+    xor  rdi,rdi     ; result
+    mov  eax,60      ; exit
     syscall
 

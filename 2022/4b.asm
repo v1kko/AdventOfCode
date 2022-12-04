@@ -75,18 +75,19 @@ _start:
     cmp state, 2
     cmove elf2_low, number
     cmova elf2_high, number
-    xor number, number
 
-    lea state, [state+1]
+    inc state
+    xor number, number
     cmp state, 4
     jne .begin
+
     xor state, state
 
+    lea temp, [amount+1]
     cmp elf1_low, elf2_high
     ja .begin
     cmp elf1_high, elf2_low
-    jb .begin
-    lea amount, [amount+1]
+    cmovae amount, temp
 
     jmp .begin
 .end:

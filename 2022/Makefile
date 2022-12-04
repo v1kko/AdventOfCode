@@ -27,7 +27,7 @@ clean:
 	rm -rf *.o *.o_debug *.exe *.debug
 
 %.run: %.exe 
-	@echo "cat `echo $< | sed 's@^\([0-9]\+\).*@\1@'`.txt | ./$<":
-	@cat `echo $< | sed 's@^\([0-9]\+\).*@\1@'`.txt | ./$<
+	@echo "./$< < `echo $< | sed 's@^\([0-9]\+\).*@\1@'`.txt":
+	@./$< < `echo $< | sed 's@^\([0-9]\+\).*@\1@'`.txt
 	
 

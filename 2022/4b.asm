@@ -15,6 +15,7 @@ _start:
 %define amount     r10d      ;Register for the final answer
 %define temp       r15d      ; temp
 %define temp_b     r15b      ; temp
+%define temp2      r14d      ; temp
 
 %define elf1_low   ebx 
 %define elf1_high  ecx 
@@ -85,7 +86,7 @@ _start:
 
     lea temp, [amount+1]
     cmp elf1_low, elf2_high
-    ja .begin
+    cmova temp, amount
     cmp elf1_high, elf2_low
     cmovae amount, temp
 

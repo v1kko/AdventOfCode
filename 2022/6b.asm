@@ -50,13 +50,11 @@ _start:
 
     ; Set registers to zero where necessary
     xor amount, amount
-    ; Weird bug?
-    dec cur
 
 .begin:
-    mov id, 13
+    mov id, 12
 .loop2:
-    mov jd, 14
+    mov jd, 13
 .loop1:
     lea rsi, [cur+i]
     lea rdi, [cur+j]
@@ -68,22 +66,18 @@ _start:
     jne .loop1
 
     dec id
-    cmp id, 0
-    je .end
+    jl .end
     jmp .loop2
 
 .duplicate:
-    mov temp_d, jd
-    cmp jd, id
-    cmova temp_d, id
-    lea cur, [cur+temp]
+    lea cur, [cur+i+1]
     lea temp, [cur+14]
     cmp temp, eof
     jb .begin
 
 .end:
     sub cur, input
-    lea amount, [cur + 15]
+    lea amount, [cur + 14]
 
 
 %define count rdi

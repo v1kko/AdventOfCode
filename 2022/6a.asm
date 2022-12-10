@@ -20,7 +20,6 @@ _start:
 %define temp       r15       ; temp
 %define temp_d     r15d      ; temp
 %define temp_b     r15b      ; temp
-%define one        r14d      ; temp
 
 %define char1      r8b
 %define char2      r9b
@@ -50,8 +49,6 @@ _start:
 
     ; Set registers to zero where necessary
     xor amount, amount
-    xor temp_d, temp_d
-    mov one, 1
 
     mov char1, [cur]
     inc cur
@@ -63,24 +60,23 @@ _start:
 
 .begin:
     mov char4, byte [cur]
-    
-    xor temp_d, temp_d
-    cmp char4, char3
-    cmove temp_d, one
-    cmp char4, char2
-    cmove temp_d, one
-    cmp char4, char1
-    cmove temp_d, one
-    cmp char3, char2
-    cmove temp_d, one
-    cmp char3, char1
-    cmove temp_d, one
-    cmp char2, char1
-    cmove temp_d, one
-    
     inc cur
-    cmp temp_d, one
-    jne .end
+    
+    cmp char4, char3
+    je .continue
+    cmp char4, char2
+    je .continue
+    cmp char4, char1
+    je .continue
+    cmp char3, char2
+    je .continue
+    cmp char3, char1
+    je .continue
+    cmp char2, char1
+    je .continue
+    
+    jmp .end
+.continue
 
     mov char1, char2
     mov char2, char3

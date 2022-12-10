@@ -20,7 +20,6 @@ _start:
 %define temp       r15       ; temp
 %define temp_d     r15d      ; temp
 %define temp_b     r15b      ; temp
-%define one        r14d      ; temp
 
 %define i          r8
 %define id         r8d
@@ -51,41 +50,40 @@ _start:
 
     ; Set registers to zero where necessary
     xor amount, amount
-    mov one, 1
+    ; Weird bug?
+    dec cur
 
 .begin:
-    xor id, id
-    xor jd, jd
-    xor temp_d, temp_d
-
+    mov id, 13
 .loop2:
-    cmp id, 13
-    je .endloop
-    lea j, [i+1]
+    mov jd, 14
 .loop1:
     lea rsi, [cur+i]
     lea rdi, [cur+j]
     cmpsb 
-    cmove temp_d, one
+    je .duplicate
 
-    inc jd
-    cmp jd, 14
-    jl .loop1
+    dec jd
+    cmp jd, id
+    jne .loop1
 
-    inc id
+    dec id
+    cmp id, 0
+    je .end
     jmp .loop2
-.endloop:
-    
-    cmp temp_d, one
-    jne .end
-    inc cur
-    lea temp, [cur+13]
+
+.duplicate:
+    mov temp_d, jd
+    cmp jd, id
+    cmova temp_d, id
+    lea cur, [cur+temp]
+    lea temp, [cur+14]
     cmp temp, eof
     jb .begin
 
 .end:
     sub cur, input
-    lea amount, [cur + 14]
+    lea amount, [cur + 15]
 
 
 %define count rdi

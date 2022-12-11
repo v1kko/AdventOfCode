@@ -1,4 +1,5 @@
-SRCS=$(wildcard *.asm)
+SRCS_UN=$(wildcard *.asm)
+SRCS=$(shell echo ${SRCS_UN} | xargs -n1 | sort -V | xargs)
 EXE=$(SRCS:.asm=.exe)
 DEBUG=$(SRCS:.asm=.debug)
 RUNS=$(SRCS:.asm=.run)
@@ -27,7 +28,4 @@ clean:
 	rm -rf *.o *.o_debug *.exe *.debug
 
 %.run: %.exe 
-	@echo "./$< < `echo $< | sed 's@^\([0-9]\+\).*@\1@'`.txt":
-	@./$< < `echo $< | sed 's@^\([0-9]\+\).*@\1@'`.txt
-	
-
+	@txt="`echo $< | sed 's@^\([0-9]\+\).*@\1@'`.txt" && echo "./$< < $${txt}:" && ./$< < $${txt}

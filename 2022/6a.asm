@@ -76,7 +76,7 @@ _start:
     je .continue
     
     jmp .end
-.continue
+.continue:
 
     mov char1, char2
     mov char2, char3

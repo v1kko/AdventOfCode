@@ -12,14 +12,16 @@ _start:
 
 %define amount     eax       ;the final answer
 %define amount_b   al        ;the final answer
-%define input      rsi       ; input file
-%define cur        rbx       ; cursor
-%define cur_d      ebx       ; cursor
-%define eof        rdi       ;REGISTER address of end of input
+%define input      esi       ; input file
+%define cur        ebx       ; cursor
+%define eof        edi       ;REGISTER address of end of input
+%define temp       ecx       ; temp
+%define temp_b      cl       ; temp
+%define one        edx     
+%define window     ebp       ;
+%define temp2      esp       ;
+%define temp2b      spl      ;
 
-%define temp       r15       ; temp
-%define temp_d     r15d      ; temp
-%define temp_b     r15b      ; temp
 
 %define char1      r8b
 %define char2      r9b
@@ -27,17 +29,17 @@ _start:
 %define char4      r11b
 
     ; Allocate memory
-    mov rax, NUM_brk
-    xor rdi, rdi
+    mov eax, NUM_brk
+    xor edi, edi
     syscall
-    mov input, rax
-    lea rdi, [rax + max_rw_len]
-    mov rax, NUM_brk
+    mov input, eax
+    lea edi, [eax + max_rw_len]
+    mov eax, NUM_brk
     syscall
 
     ; read in our input, oneshot 
-    mov rax, NUM_read
-    xor rdi, rdi          ; file descriptor stdin
+    mov eax, NUM_read
+    xor edi, edi          ; file descriptor stdin
     mov rdx, max_rw_len   ; maximum read size
     syscall
 
@@ -45,59 +47,59 @@ _start:
     mov cur, input ; cursor for input
 
     ; get location of EOF
-    lea eof, [input + rax]
+    lea eof, [input + eax]
 
     ; Set registers to zero where necessary
+    mov one,  1
+    xor window, window
     xor amount, amount
 
-    mov char1, [cur]
+    mov temp2, one
+    mov cl, byte [cur]
+    shl temp2, cl
+    xor window, temp2
     inc cur
-    mov char2, [cur]
+    mov temp2, one
+    mov cl, byte [cur]
+    shl temp2, cl
+    xor window, temp2
     inc cur
-    mov char3, [cur]
+    mov temp2, one
+    mov cl, byte [cur]
+    shl temp2, cl
+    xor window, temp2
     inc cur
-
 
 .begin:
-    mov char4, byte [cur]
+    ;add
+    mov temp2, one
+    mov cl, byte [cur]
+    shl temp2, cl
+    xor window, temp2
     inc cur
     
-    cmp char4, char3
-    je .continue
-    cmp char4, char2
-    je .continue
-    cmp char4, char1
-    je .continue
-    cmp char3, char2
-    je .continue
-    cmp char3, char1
-    je .continue
-    cmp char2, char1
-    je .continue
-    
-    jmp .end
-.continue:
+    popcnt amount, window
 
-    mov char1, char2
-    mov char2, char3
-    mov char3, char4
+    ;remove
+    mov temp2, one
+    lea temp, [cur-4]
+    mov cl, byte [temp]
+    shl temp2, cl
+    xor window, temp2
 
-    cmp cur, eof
-    jb .begin
+    cmp amount, 4
+    jne .begin
 
-.end:
     sub cur, input
-    mov amount, cur_d
-
+    mov amount, cur
 
 %define count rdi
-%define temp r15
 
     ; Convert maximum to ascii, reuse spent input
-    mov eax, amount
+    ;mov eax, amount
     mov cur, input
-    add cur, qword 9
-    mov count, qword 9
+    add cur, dword 9
+    mov count, dword 9
     mov [cur], byte 10 ; newline
     dec cur
     mov temp, 10 ; divisor
@@ -119,7 +121,7 @@ _start:
 end_addchar:
 
     ; Set up parameters and write to stdout
-    mov rax, NUM_write    
+    mov eax, NUM_write    
     mov  edi, 1            ; file descriptor stdout
     ; mov rsi, input       ; buffer ; this still holds
     mov edx, 10            ; count

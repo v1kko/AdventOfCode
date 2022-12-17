@@ -20,6 +20,9 @@ _start:
 %define temp2      r8d       ;
 %define temp2b     r8b       ;
 
+    mov rdi, rsp          
+    add rdi, 16              ; argv[1]
+    mov rdi, [rdi]
     call read_input
 
     ; prepare registers
@@ -32,15 +35,16 @@ _start:
     xor one, one
     inc one
     xor window, window
-    xor amount, amount
 
-%rep 13
+    mov amount_b, 13
+.prefill:
     mov temp2, one
     mov cl, byte [cur]
     shl temp2, cl
     xor window, temp2
     inc cur
-%endrep
+    dec amount_b
+    jnz .prefill
 
 .begin:
     ;add

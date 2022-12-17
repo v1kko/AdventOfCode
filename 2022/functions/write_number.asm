@@ -5,7 +5,7 @@
 
 
 ; void write_number(int esi)
-; touches esi, edi, eax
+; touches esi, edi, eax, ecx
 write_number:
     mov cur, rsp
     dec cur
@@ -13,13 +13,15 @@ write_number:
     xor temp, temp
     mov temp_b, 10 ; divisor
 
-%rep 9
+    mov cl, 9
+.digit_loop:
     dec cur
     xor edx, edx ; set to zero
     idiv temp
     add dl, byte 48
     mov [cur], dl
-%endrep
+    dec cl
+    jnz .digit_loop
 
     xor eax, eax
     xor edi, edi

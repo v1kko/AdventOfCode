@@ -15,14 +15,14 @@ run: ${RUNS}
 %.debug: %.o_debug Makefile
 	ld $< -o $@
 
-%.exe %.debug: %.o Makefile
+%.exe: %.o Makefile
 	ld $< -o $@ -T linkerscript
 	sstrip $@
 
 %.debug: %.o Makefile
 	ld $< -o $@
 
-%.o: %.asm Makefile
+%.o: %.asm Makefile functions/*.asm
 	nasm $< -felf64 -o $@
 
 %.o_debug: %.asm Makefile
@@ -32,4 +32,4 @@ clean:
 	rm -rf *.o *.o_debug *.exe *.debug
 
 %.run: %.exe 
-	@txt="`echo $< | sed 's@^\([0-9]\+\).*@\1@'`.txt" && echo "./$< < $${txt}:" && ./$< < $${txt}
+	@txt="`echo $< | sed 's@^\([0-9]\+\).*@\1@'`.txt" && echo "./$< $${txt} < $${txt}:" && ./$< $${txt} < $${txt}

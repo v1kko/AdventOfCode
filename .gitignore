@@ -2,6 +2,7 @@ input
 test
 *.txt
 *.o
+*.o_debug
 *.exe
 *.debug
 *.mod

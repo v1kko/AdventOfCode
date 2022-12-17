@@ -1,4 +1,4 @@
-SRCS_UN=$(wildcard *.asm)
+SRCS_UN=$(wildcard ./*.asm)
 SRCS=$(shell echo ${SRCS_UN} | xargs -n1 | sort -V | xargs)
 EXE=$(SRCS:.asm=.exe)
 DEBUG=$(SRCS:.asm=.debug)
@@ -16,6 +16,10 @@ run: ${RUNS}
 	ld $< -o $@
 
 %.exe %.debug: %.o Makefile
+	ld $< -o $@ -T linkerscript
+	sstrip $@
+
+%.debug: %.o Makefile
 	ld $< -o $@
 
 %.o: %.asm Makefile

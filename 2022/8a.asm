@@ -2,9 +2,11 @@ default rel
 
 section .text
 global _start
+%define NUM_read  0
+%define NUM_brk   12
 
-%include "functions/read_input.asm"
 %include "functions/write_number.asm"
+%define max_rw_len 0x7ffff000
 
 _start:
 
@@ -20,10 +22,20 @@ _start:
 %define newamount  edx       ; temporary
 %define height      r8b      ; temporary
 
-    mov rdi, rsp          
-    add rdi, 16              ; argv[1]
-    mov rdi, [rdi]
-    call read_input
+    ; Allocate memory
+    mov eax, NUM_brk
+    xor edi, edi
+    syscall
+    mov input, eax
+    lea edi, [eax + max_rw_len]
+    mov eax, NUM_brk
+    syscall
+
+    ; read in our input, oneshot 
+    mov eax, NUM_read
+    xor edi, edi          ; file descriptor stdin
+    mov rdx, max_rw_len   ; maximum read size
+    syscall
 
     ; prepare registers
     mov cur, input ; cursor for input

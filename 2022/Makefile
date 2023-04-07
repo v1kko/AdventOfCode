@@ -1,10 +1,13 @@
-SRCS_UN=$(wildcard ./*.asm)
-SRCS=$(shell echo ${SRCS_UN} | xargs -n1 | sort -V | xargs)
-EXE=$(SRCS:.asm=.exe)
+SRCS_ASM=$(wildcard ./*.asm)
+SRCS=$(shell echo ${SRCS_ASM} | xargs -n1 | sort -V | xargs)
+EXE=$(patsubst %.asm, %.exe, ${SRCS})
+TXT=$(shell echo ${SRCS} | tr " " "\n" | grep -v b.asm | sed 's/a.asm/.txt/')
 DEBUG=$(SRCS:.asm=.debug)
 RUNS=$(SRCS:.asm=.run)
-.PRECIOUS: %.o %.o_debug %.exe
+.PRECIOUS: %.o %.o_debug %.exe %a.txt %b.txt
 .PHONY: %.run
+
+$(warning echo ${TXT})
 
 all: ${EXE}
 
@@ -15,7 +18,7 @@ run: ${RUNS}
 %.debug: %.o_debug Makefile
 	ld $< -o $@
 
-%.exe: %.o Makefile
+%.exe: %.o Makefile 
 	ld $< -o $@ -T linkerscript
 	sstrip $@
 
@@ -25,11 +28,19 @@ run: ${RUNS}
 %.o: %.asm Makefile functions/*.asm
 	nasm $< -felf64 -o $@
 
+%.o: %.c Makefile
+	gcc $< -c -o $@
+
 %.o_debug: %.asm Makefile
 	nasm -g $< -felf64 -o $@
 
 clean:
 	rm -rf *.o *.o_debug *.exe *.debug
 
-%.run: %.exe 
-	@txt="`echo $< | sed 's@^\([0-9]\+\).*@\1@'`.txt" && echo "./$< $${txt} < $${txt}:" && ./$< $${txt} < $${txt}
+%b.txt:
+	../get_input.sh 2022 $* > $@
+%a.txt:
+	../get_input.sh 2022 $* > $@
+
+%.run: %.exe %.txt
+	./$< < $(word 2,$^)

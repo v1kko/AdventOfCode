@@ -1,7 +1,7 @@
 default rel
 %define NUM_read 0
 %define NUM_write 1
-%define max_rw_len 0x7ffff000
+%define max_rw_len 0x7f00
 
 global _start
 

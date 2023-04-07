@@ -9,7 +9,7 @@ subroutine solver22(part,input,ans)
   integer(int64) :: ans
   integer        :: part, n, idx(2), n_boxes
   type(boxx)     :: boxes(size(input))
-  logical        :: init_area(-50:50,-50:50,-50:50)
+  logical, save  :: init_area(-50:50,-50:50,-50:50)
   init_area = .false.
 
   do n=1,size(input)

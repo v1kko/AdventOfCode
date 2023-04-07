@@ -3,7 +3,7 @@ subroutine solver16(part,input,ans)
   implicit none
   integer(int64) :: ans, val
   integer        :: part, n, v_sum, dum
-  integer*1      :: hex
+  integer(1)     :: hex
   type(char_p)   :: input(:)
   character(len=:), allocatable, target :: in_b
   character(len=4) :: hex_s

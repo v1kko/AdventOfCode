@@ -30,7 +30,7 @@ subroutine solver10(part,input,ans)
   end do
   if (part == 2) then
      call qsort(c_loc(score2),int(size(input),c_size_t) &
-                ,sizeof(score2(1)),c_funloc(compar))
+                ,c_sizeof(score2(1)),c_funloc(compar))
      ans = score2(size(input)-noerror/2)
   end if
 contains
@@ -95,7 +95,7 @@ end subroutine
 
 function compar(a,b)
   integer(int64) :: a,b
-  integer*2 :: compar
+  integer(2) :: compar
   if ( a .lt. b ) compar = -1
   if ( a .eq. b ) compar = 0
   if ( a .gt. b ) compar = 1

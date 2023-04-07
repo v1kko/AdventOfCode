@@ -5,8 +5,8 @@ subroutine solver5(part,input,ans)
   integer :: part,n, x1,x2,y1,y2,x,y,it_x,it_y,i
   type(char_p) :: input(:)
   character(len=10) :: dum
-  integer :: map(1000,1000)
-  logical :: cross(1000,1000)
+  integer, save :: map(1000,1000)
+  logical, save :: cross(1000,1000)
 
   map = 0
   cross = .false.

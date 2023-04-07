@@ -10,14 +10,14 @@ subroutine solver14(part,input,ans)
   character(len=1) :: insert(size(input)-2)
   character(len=4) :: dum
   integer(int64)   :: cnt(26)
-  integer(int64)   :: cnt_p(26,26,26)
-  integer(int64)   :: cnt_p_new(26,26,26)
+  integer(int64), save :: cnt_p(26,26,26)
+  integer(int64), save :: cnt_p_new(26,26,26)
   integer          :: newchar
 
   cnt_p = 0
   cnt = 0
   do n=3,size(input)
-    read(input(n)%p,'(A2A4A1)') pairs(n-2), dum, insert(n-2)
+    read(input(n)%p,'(A2,A4,A1)') pairs(n-2), dum, insert(n-2)
   end do
 
   if (part == 1) maxlevel = 10

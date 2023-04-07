@@ -92,10 +92,10 @@ contains
     character(len=80) :: filename, buffer
     nlines = 0
 
-    write(filename,'(I2A)') day, ".txt"
+    write(filename,'(I2,A)') day, ".txt"
     filename = adjustl(filename)
     inquire(file=filename,exist=found)
-    if (.not. found ) call abort()
+    if (.not. found ) stop
     open(newunit=fd, file=filename)
     do
       read(fd, *, end=10)
@@ -147,7 +147,7 @@ if (n_args == 0) then
     write(*,*) answer
     deallocate(input)
   end do
-  return
+  stop
 end if
 do n=1,n_args
   call get_command_argument(n, arg, l)
@@ -157,7 +157,7 @@ do n=1,n_args
   else if (arg(l:) == "b") then
   part = 2
   else
-  call abort()
+    stop
   endif 
   
   call reader(input, day)

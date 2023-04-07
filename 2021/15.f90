@@ -4,13 +4,13 @@ subroutine solver15(part,input,ans)
   integer(int64) :: ans
   integer        :: part, n, x_l, y_l, x, y, x_o, y_o, idx
   type(char_p)   :: input(:)
-  integer*1      :: inval(len(input(1)%p), size(input))
-  integer*1      :: temp(len(input(1)%p), size(input))
+  integer(1)     :: inval(len(input(1)%p), size(input))
+  integer(1)     :: temp(len(input(1)%p), size(input))
   integer        :: pque_c
   character(len=20) :: in_l
   integer  , allocatable     :: map(:,:)
   integer  , allocatable     :: pque(:), pque_v(:,:)
-  integer*1, allocatable     :: val(:,:)
+  integer(1), allocatable     :: val(:,:)
   logical, allocatable       :: curr(:, :), done(:, :)
 
   x_l = len(input(1)%p)

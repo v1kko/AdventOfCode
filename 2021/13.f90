@@ -3,7 +3,7 @@ subroutine solver13(part,input,ans)
   implicit none
   integer(int64) :: ans
   integer        :: part, x, y, n, eq_i, fold_i, max_y, max_x
-  logical        :: paper(1400,1400)
+  logical, save  :: paper(1400,1400)
   type(char_p) :: input(:)
   character(len=2) :: fold
   max_y = 1400

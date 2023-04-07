@@ -104,8 +104,8 @@ subroutine solver8(part,input,ans)
 
 contains
 function compar(a,b)
-  integer*1 :: a,b
-  integer*2 :: compar
+  integer(1) :: a,b
+  integer(2) :: compar
   if ( a .lt. b ) compar = -1
   if ( a .eq. b ) compar = 0
   if ( a .gt. b ) compar = 1

@@ -2,10 +2,11 @@ subroutine solver23(part,input,ans)
   use iso_fortran_env, only: int64
   implicit none
   integer(int64)  :: ans
-  integer         :: part, n, rlen, ncand, ndone, scores(1000000), idx, score
+  integer         :: part, n, rlen, ncand, ndone, idx, score
+  integer, save   :: scores(1000000)
   character(len=23) :: start, final, cur
-  character(len=23) :: candidates(1000000)
-  character(len=23) :: done(1000000)
+  character(len=23), save :: candidates(1000000)
+  character(len=23), save :: done(1000000)
   character(len=3)  :: dum
   type(char_p)      :: input(:)
 
@@ -17,14 +18,14 @@ subroutine solver23(part,input,ans)
     rlen = 4
   end if
 
-  read(input(3)%p,'((A3)7(A1))') dum,start(1:1) &
-                               , dum,start(rlen*1+1:rlen*1+1) &
-                               , dum,start(rlen*2+1:rlen*2+1) &
-                               , dum,start(rlen*3+1:rlen*3+1) 
-  read(input(4)%p,'((A3)7(A1))') dum,start(rlen*1:rlen*1) &
-                               , dum,start(rlen*2:rlen*2) &
-                               , dum,start(rlen*3:rlen*3) &
-                               , dum,start(rlen*4:rlen*4) 
+  read(input(3)%p,'((A3),7(A1))') dum,start(1:1) &
+                                , dum,start(rlen*1+1:rlen*1+1) &
+                                , dum,start(rlen*2+1:rlen*2+1) &
+                                , dum,start(rlen*3+1:rlen*3+1) 
+  read(input(4)%p,'((A3),7(A1))') dum,start(rlen*1:rlen*1) &
+                                , dum,start(rlen*2:rlen*2) &
+                                , dum,start(rlen*3:rlen*3) &
+                                , dum,start(rlen*4:rlen*4) 
   if (part == 2) then
     start(2:2) = 'D'
     start(3:3) = 'D'
@@ -269,7 +270,7 @@ function cost(letter)
   else if (letter == 'D') then
     cost = 1000
   else
-    call abort()
+    stop
   end if
 end function
 end subroutine

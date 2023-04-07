@@ -5,9 +5,9 @@ subroutine solver25(part,input,ans)
   type(char_p)   :: input(:)
   integer        :: part, n, m
   integer        :: in_l, in_s
-  integer*1      :: seabed(len(input(1)%p),size(input))
-  integer*1      :: seabed2(len(input(1)%p),size(input))
-  integer*1      :: seabed3(len(input(1)%p),size(input))
+  integer(1)     :: seabed(len(input(1)%p),size(input))
+  integer(1)     :: seabed2(len(input(1)%p),size(input))
+  integer(1)     :: seabed3(len(input(1)%p),size(input))
   character(len=1)::buf
 
   in_l = len(input(1)%p)

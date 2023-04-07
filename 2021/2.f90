@@ -21,7 +21,7 @@ subroutine solver2(part,input,ans)
     else if (direction == "forward") then
       fw = fw + dist
     else
-      call abort()
+      stop
     end if
   enddo
   ans = fw * ud
@@ -39,7 +39,7 @@ subroutine solver2(part,input,ans)
       fw = fw + dist
       ud = ud + dist * aim
     else
-      call abort()
+      stop
     end if
   enddo
   ans = fw * ud

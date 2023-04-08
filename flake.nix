@@ -13,6 +13,8 @@
           valgrind
           gdb
           nasm
+          mypython
+          numpy
       ];
     };
   };

@@ -1,5 +1,7 @@
 input
 test
+.direnv
+.envrc
 *.txt
 *.o
 *.o_debug

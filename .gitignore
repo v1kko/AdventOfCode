@@ -1,5 +1,6 @@
 input
 test
+target
 .direnv
 .envrc
 *.txt
@@ -8,3 +9,4 @@ test
 *.exe
 *.debug
 *.mod
+

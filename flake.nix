@@ -15,6 +15,7 @@
           nasm
           mypython
           numpy
+          cargo
       ];
     };
   };

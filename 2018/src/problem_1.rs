@@ -1,28 +1,29 @@
 use std::fs;
-use rayon::prelude::*;
 use std::collections::HashMap;
+use lazy_static::lazy_static;
+
+lazy_static! {
+  static ref CONTENTS : Vec<i32> = { 
+    let raw         = fs::read_to_string("1.txt").unwrap(); 
+    let raw         = &raw[..raw.len()-1];
+    let deltas_str  = raw.split("\n").collect::<Vec<&str>>();
+    let deltas      = deltas_str.iter().map(|x| x.parse::<i32>().unwrap());
+    deltas.collect::<Vec<i32>>()
+  };
+}
 
 pub fn a() {
-    let file_path        = "1.txt";
-    let contents         = fs::read_to_string(file_path).unwrap();
-    let contents         = &contents[..contents.len() -1];
-    let frequencies: _   = contents.split("\n").collect::<Vec<&str>>();
-    let frequencies: _   = frequencies.par_iter().map(|x| x.parse::<i32>().unwrap());
-    let result     : i32 = frequencies.reduce(|| 0, |acc, x| acc+x);
+    let result     : i32 = CONTENTS.iter().fold( 0,|acc, x| acc+x);
     println!("{}",result);
 }
 
 pub fn b() {
-    let file_path        = "1.txt";
-    let contents         = fs::read_to_string(file_path).unwrap();
-    let contents         = &contents[..contents.len() -1];
-    let steps: _         = contents.split("\n").collect::<Vec<&str>>();
-    let steps: Vec<i32>  = steps.par_iter().map(|x| x.parse::<i32>().unwrap()).collect::<Vec<i32>>();
+
     let mut visited = HashMap::new();
     let mut cur: i32 = 0;
     visited.insert(cur,true);
     'outer: loop {
-        for step in &steps {
+        for step in &*CONTENTS {
             cur += step;
             if visited.get(&cur).is_some() { 
                 break 'outer; 

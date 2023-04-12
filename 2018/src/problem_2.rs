@@ -1,16 +1,20 @@
 use std::fs;
 use rayon::prelude::*;
 use std::collections::HashMap;
+use lazy_static::lazy_static;
+
+lazy_static! {
+  static ref BOXES : Vec<Vec<char>> = { 
+    let raw         = fs::read_to_string("2.txt").unwrap(); 
+    let raw         = &raw[..raw.len()-1];
+    let boxes: _    = raw.split("\n").map(|x| x.chars().collect()).collect::<Vec<Vec<char>>>();
+    boxes
+  };
+}
 
 pub fn a() {
-    let file_path        = "2.txt";
-    let contents         = fs::read_to_string(file_path).unwrap();
-    let contents         = &contents[..contents.len() -1];
-    let boxes: _         = contents.split("\n").map(|x| x.chars().collect()).collect::<Vec<Vec<char>>>();
-    let (twos, threes) : (i32, i32) 
-                         = boxes.par_iter().map(|letters| {
-      let mut freqs: HashMap<char, i32> 
-                         = HashMap::new();
+    let (twos, threes) : (i32, i32) = BOXES.par_iter().map(|letters| {
+      let mut freqs: HashMap<char, i32> = HashMap::new();
       for letter in letters {
         *freqs.entry(*letter).or_default() += 1;
       }
@@ -22,15 +26,10 @@ pub fn a() {
 }
 
 pub fn b() {
-    let file_path        = "2.txt";
-    let contents         = fs::read_to_string(file_path).unwrap();
-    let contents         = &contents[..contents.len() -1];
-    let boxes: _         = contents.split("\n").map(|x| x.chars().collect()).collect::<Vec<Vec<char>>>();
-    let mut pairs : Vec<(&Vec<char>,&Vec<char>)> 
-                         = Vec::with_capacity(boxes.len().pow(2)-boxes.len());
+    let mut pairs : Vec<(&Vec<char>,&Vec<char>)> = Vec::with_capacity(BOXES.len().pow(2)-BOXES.len());
 
-    for (i, box1) in  boxes.iter().enumerate() {
-      for box2 in boxes[i..].iter() {
+    for (i, box1) in  BOXES.iter().enumerate() {
+      for box2 in BOXES[i..].iter() {
         pairs.push((box1,box2));
       }
     }

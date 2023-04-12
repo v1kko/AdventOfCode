@@ -3,24 +3,21 @@ use rayon::prelude::*;
 use std::collections::HashMap;
 
 pub fn a() {
-    let file_path = "1.txt";
-    let contents = fs::read_to_string(file_path).unwrap();
-    let frequencies: _ = contents.split("\n").collect::<Vec<&str>>();
-    let result: i32 = frequencies.par_iter().cloned().fold(|| 0, |acc, x| { 
-      let y = x.parse::<i32>();
-      match y {
-        Ok(x) => acc + x,
-        Err(_e) => acc
-      }
-    }).sum();
+    let file_path        = "1.txt";
+    let contents         = fs::read_to_string(file_path).unwrap();
+    let contents         = &contents[..contents.len() -1];
+    let frequencies: _   = contents.split("\n").collect::<Vec<&str>>();
+    let frequencies: _   = frequencies.par_iter().map(|x| x.parse::<i32>().unwrap());
+    let result     : i32 = frequencies.reduce(|| 0, |acc, x| acc+x);
     println!("{}",result);
 }
 
 pub fn b() {
-    let file_path = "1.txt";
-    let contents = fs::read_to_string(file_path).unwrap();
-    let steps: _ = contents.split("\n").collect::<Vec<&str>>();
-    let steps = steps.par_iter().cloned().filter_map(|x| x.parse::<i32>().ok()).collect::<Vec<i32>>();
+    let file_path        = "1.txt";
+    let contents         = fs::read_to_string(file_path).unwrap();
+    let contents         = &contents[..contents.len() -1];
+    let steps: _         = contents.split("\n").collect::<Vec<&str>>();
+    let steps: Vec<i32>  = steps.par_iter().map(|x| x.parse::<i32>().unwrap()).collect::<Vec<i32>>();
     let mut visited = HashMap::new();
     let mut cur: i32 = 0;
     visited.insert(cur,true);

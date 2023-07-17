@@ -1,5 +1,5 @@
 use std::fs;
-use std::collections::HashMap;
+use std::collections::HashSet;
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -19,16 +19,16 @@ pub fn a() {
 
 pub fn b() {
 
-    let mut visited = HashMap::new();
+    let mut visited = HashSet::new();
     let mut cur: i32 = 0;
-    visited.insert(cur,true);
+    visited.insert(cur);
     'outer: loop {
         for step in &*CONTENTS {
             cur += step;
-            if visited.get(&cur).is_some() { 
+            if visited.contains(&cur) { 
                 break 'outer; 
             };
-            visited.insert(cur,true);
+            visited.insert(cur);
         }
     }
     println!("{}",cur);

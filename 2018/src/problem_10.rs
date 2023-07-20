@@ -40,9 +40,32 @@ pub fn a_inner(print:bool) {
   let mut data : Vec<((i32,i32),(i32,i32))>= DATA.clone();
   let (x0,x1,y0,y1) = bounding_box(&data);
   let mut min = (x1-x0).abs().min((y1-y0).abs());
+  let mut old_data = data.clone();
+  let factor = 100;
    
   CNT.with(|inner_cnt| {
     *inner_cnt.borrow_mut() = 0;
+
+    loop {
+      let old_old_data = old_data.clone();
+      old_data = data.clone();
+      data = data.par_iter().map(|((x,y),(vx,vy)) | ((x+vx*factor,y+vy*factor),(*vx,*vy))).collect();
+      let (x0,x1,y0,y1) = bounding_box(&data);
+      let new_min = (x1-x0).abs().min((y1-y0).abs());
+      if new_min > min {
+        data = old_old_data;
+        break;
+      }
+      *inner_cnt.borrow_mut() += factor as u32;
+      min = new_min;
+    }
+    *inner_cnt.borrow_mut() -= factor as u32;
+
+    let (x0,x1,y0,y1) = bounding_box(&data);
+    min = (x1-x0).abs().min((y1-y0).abs());
+
+
+
     loop {
       // TODO implement binary search
       let old_data = data.clone();

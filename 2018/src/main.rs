@@ -9,7 +9,7 @@ mod problem_7;
 mod problem_8;
 mod problem_9;
 mod problem_10;
-
+mod problem_11;
 
 fn main() {
     let problems: Vec<(&str,&dyn Fn())> = 
@@ -33,6 +33,8 @@ fn main() {
               (" 9b",&problem_9::b),
               ("10a",&problem_10::a),
               ("10b",&problem_10::b),
+              ("11a",&problem_11::a),
+              ("11b",&problem_11::b),
             ];
     let args : Vec<String> = env::args().collect();
     if args.len() == 1 {

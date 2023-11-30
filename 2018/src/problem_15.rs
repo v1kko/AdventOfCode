@@ -132,12 +132,7 @@ impl Player {
       }
     }
     if enemies.len() == 0 { return; }
-    enemies.sort_by(|a,b| 
-                    if  a.2.cmp(&b.2) == Ordering::Equal {
-                      a.3.cmp(&b.3)
-                    } else { 
-                      a.2.cmp(&b.2)
-                    });
+    enemies.sort_by(|a,b| if  a.2.cmp(&b.2) == Ordering::Equal { a.3.cmp(&b.3) } else { a.2.cmp(&b.2) });
     
     let (y,x,_,_) = enemies[0];
     let enemy = match map.0[y][x] {
@@ -219,18 +214,13 @@ impl Player {
   }
 }
 
-
-pub fn a() {
-  let answer = simulate(3, true).unwrap();
-  println!("{}", answer);
-}
-
 fn simulate(elf_power : i32, allow_dead_elves : bool) -> Option<i32> {
     let (mut map,mut players) = DATA.clone();
     let mut cnt = 0;
     let mut n_elves = players.iter().filter(|player| player.spec == Species::Elf).count();
     let start_n_elves = n_elves;
     let mut n_goblins = players.iter().filter(|player| player.spec == Species::Goblin).count();
+
     'outer: loop {
       let mut player_order : Vec<(usize,Player)> = players.clone().into_iter().enumerate().collect();
       player_order.sort_by(|a,b| a.1.cmp(&b.1));
@@ -247,8 +237,14 @@ fn simulate(elf_power : i32, allow_dead_elves : bool) -> Option<i32> {
       }
       cnt +=1;
     }
+
     let health : i32 =  players.into_iter().map(|player| player.health).sum();
     return Some(health*cnt);
+}
+
+pub fn a() {
+  let answer = simulate(3, true).unwrap();
+  println!("{}", answer);
 }
 
 pub fn b() {

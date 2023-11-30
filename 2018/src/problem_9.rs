@@ -19,7 +19,7 @@ pub struct Node {
 }
 impl Node {
   fn remove(& self) -> u32 {
-    let prev : Weak<RefCell<Node>> = self.prev.clone();
+    let prev = self.prev.clone();
     let next : Weak<RefCell<Node>> = self.next.clone();
 
     prev.upgrade().unwrap().borrow_mut().next = next.clone();

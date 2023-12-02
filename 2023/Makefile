@@ -9,10 +9,10 @@ all: $(TXTS) aoc
 	./aoc
 
 aoc: ${SRCS} aoc_2023.f90
-	gfortran aoc_2023.f90 -O3 -march=native -Wall -Wextra -std=f2018 -o aoc -g -cpp
+	gfortran aoc_2023.f90 -O3 -march=native -Wall -Wextra -std=f2018 -o aoc -cpp
 aoc_debug: ${SRCS} aoc_2023.f90
 	gfortran aoc_2023.f90 -Og -march=native -Wall -Wextra -Werror -std=f2018 -o aoc_debug -g -fcheck=all -cpp
 
-test: aoc_debug
+test: ${TXTS} aoc_debug
 	./aoc_debug
 

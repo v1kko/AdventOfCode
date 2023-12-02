@@ -27,7 +27,7 @@ module solvers
   type (solver_interface_p) :: solver_list(28)
 contains
 #include "1.f90"
-!#include "2.f90"
+#include "2.f90"
 !#include "3.f90"
 !#include "4.f90"
 !#include "5.f90"
@@ -55,7 +55,7 @@ contains
 subroutine init_solvers()
 implicit none
   solver_list(1)%p => solver1
-  !solver_list(2)%p => solver2
+  solver_list(2)%p => solver2
   !solver_list(3)%p => solver3
   !solver_list(4)%p => solver4
   !solver_list(5)%p => solver5

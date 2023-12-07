@@ -1,4 +1,5 @@
 module solvers
+  use iso_c_binding
   use iso_fortran_env, only: int64, real64
   type char_p
     character(len=:), allocatable :: p
@@ -32,7 +33,7 @@ contains
 #include "4.f90"
 #include "5.f90"
 #include "6.f90"
-!#include "7.f90"
+#include "7.f90"
 !#include "8.f90"
 !#include "9.f90"
 !#include "10.f90"
@@ -60,7 +61,7 @@ implicit none
   solver_list(4)%p => solver4
   solver_list(5)%p => solver5
   solver_list(6)%p => solver6
-  !solver_list(7)%p => solver7
+  solver_list(7)%p => solver7
   !solver_list(8)%p => solver8
   !solver_list(9)%p => solver9
   !solver_list(10)%p => solver10

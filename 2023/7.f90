@@ -17,6 +17,7 @@ subroutine solver_a(input,ans)
   type(char_p), target :: input(:)
   character(len=:), pointer :: p
   type, bind(c) :: hand
+    integer(c_int32_t) :: typ
     integer(c_int32_t) :: cards(5)
     integer(c_int32_t) :: bid
   end type
@@ -41,6 +42,7 @@ subroutine solver_a(input,ans)
           read(p(m:m),*) hands(n)%cards(m)
       end select
     end do
+    hands(n)%typ = get_type(hands(n)%cards)
     read(p(7:),*) hands(n)%bid
   end do
 
@@ -51,78 +53,50 @@ subroutine solver_a(input,ans)
     ans = ans + hands(n)%bid*n
   end do
 end subroutine
+function get_type(cards)
+  implicit none
+  integer :: cards(5), counts(14), get_type
+  integer :: n
+  counts = 0
+  get_type = 0
+  do n = 1, 5
+    counts(cards(n)) = counts(cards(n)) + 1
+  end do
+  if (any(counts==5)) then
+    get_type = 6
+    return
+  end if
+  if (any(counts==4)) then
+    get_type = 5
+    return
+  end if
+  if (any(counts==3) .and. any(counts==2)) then
+    get_type = 4
+    return
+  end if
+  if (any(counts==3)) then
+    get_type = 3
+    return
+  end if
+  get_type = count(counts==2)
+end function
 function compare(a,b)
   type, bind(c) :: hand
+    integer(c_int32_t) :: typ
     integer(c_int32_t) :: cards(5)
     integer(c_int32_t) :: bid
   end type
   type(hand) :: a,b
   integer(2) :: compare
   integer :: n
-  integer :: acounts(14), bcounts(14)
-  acounts = 0
-  bcounts = 0
-  do n = 1, 5
-    acounts(a%cards(n)) = acounts(a%cards(n)) + 1
-    bcounts(b%cards(n)) = bcounts(b%cards(n)) + 1
-  end do
-  
-  if (any(acounts==5) .and. .not.any(bcounts==5)) then
+  if (a%typ > b%typ) then
     compare = 1
     return
   end if
-  if (any(bcounts==5) .and. .not.any(acounts==5)) then
+  if (a%typ < b%typ) then
     compare = -1
     return
   end if
-
-  if (any(acounts==4) .and. .not.any(bcounts==4)) then
-    compare = 1
-    return
-  end if
-  if (any(bcounts==4) .and. .not.any(acounts==4)) then
-    compare = -1
-    return
-  end if
-
-  if (any(acounts==3) .and. any(acounts==2) &
-      .and. .not.(any(bcounts==3).and.any(bcounts==2))) then
-    compare = 1
-    return
-  end if
-  if (any(bcounts==3) .and. any(bcounts==2) &
-      .and. .not.(any(acounts==3).and.any(acounts==2))) then
-    compare = -1
-    return
-  end if
-
-  if (any(acounts==3) .and. .not.any(bcounts==3)) then
-    compare = 1
-    return
-  end if
-  if (any(bcounts==3) .and. .not.any(acounts==3)) then
-    compare = -1
-    return
-  end if
-
-  if (count(acounts==2)==2 .and. .not.count(bcounts==2)==2) then
-    compare = 1
-    return
-  end if
-  if (count(bcounts==2)==2 .and. .not.count(acounts==2)==2) then
-    compare = -1
-    return
-  end if
-
-  if (any(acounts==2) .and. .not.any(bcounts==2)) then
-    compare = 1
-    return
-  end if
-  if (any(bcounts==2) .and. .not.any(acounts==2)) then
-    compare = -1
-    return
-  end if
-
   do n = 1, 5
     if ( a%cards(n) .lt. b%cards(n) ) then 
       compare = -1

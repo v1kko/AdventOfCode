@@ -13,7 +13,7 @@ aoc: ${SRCS} aoc_2023.f90
 aocdebug: ${SRCS} aoc_2023.f90
 	gfortran aoc_2023.f90 -Og -march=native -Wall -Wextra -Werror -std=f2018 -o aocdebug -g -fcheck=all -cpp -Wno-do-subscript
 
-test: ${TXTS} aoc_debug
+test: ${TXTS} aocdebug
 	./aocdebug
 
 fmlib.a: fmsave.f95 fmzm90.f95 fm.f95

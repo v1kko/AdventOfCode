@@ -124,11 +124,12 @@ end module
 program main
 use solvers, only : solver_list, init_solvers, char_p
 use input_reader, only : reader
-use iso_fortran_env, only: int64
+use iso_fortran_env, only: int64, real64
 implicit none
 integer :: n_args, n, day, l, part
 character(len=3) :: arg
-integer(int64) :: answer
+integer(int64) :: answer, timea, timeb, rate
+real(real64) :: ratef
 type(char_p), allocatable :: input(:)
 
 call init_solvers()
@@ -141,12 +142,16 @@ if (n_args == 0) then
   do day = 1,size(solver_list)
     if (.not.associated(solver_list(day)%p)) cycle
     call reader(input,day)
+    call system_clock(timea, rate)
     call solver_list(day)%p(1,input, answer)
-    write(*,"(I2,A)",advance='no') day,"a"
-    write(*,*) answer
+    call system_clock(timeb)
+    ratef = 1e6_real64/rate
+    write(*,"(I2,A,I21,F20.2,A)") day, "a", answer, (timeb-timea) * ratef, " microseconds" 
+    call system_clock(timea, rate)
     call solver_list(day)%p(2,input, answer)
-    write(*,"(I2,A)",advance='no') day,"b"
-    write(*,*) answer
+    call system_clock(timeb)
+    ratef = 1e6_real64/rate
+    write(*,"(I2,A,I21,F20.2,A)") day, "b", answer, (timeb-timea) * ratef, " microseconds" 
     deallocate(input)
   end do
   stop

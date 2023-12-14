@@ -115,6 +115,7 @@ subroutine solver_b(input,ans)
   type(char_p), target :: input(:)
   character(len=:), pointer :: p
   type, bind(c) :: hand
+    integer(c_int32_t) :: typ
     integer(c_int32_t) :: cards(5)
     integer(c_int32_t) :: bid
   end type
@@ -139,122 +140,58 @@ subroutine solver_b(input,ans)
           read(p(m:m),*) hands(n)%cards(m)
       end select
     end do
+    hands(n)%typ = get_type2(hands(n)%cards)
     read(p(7:),*) hands(n)%bid
   end do
 
   call qsort(c_loc(hands),int(size(input),c_size_t) &
-                ,c_sizeof(hands(1)),c_funloc(compare2))
+                ,c_sizeof(hands(1)),c_funloc(compare))
 
   do n = 1, size(hands)
     ans = ans + hands(n)%bid*n
   end do
 end subroutine
-function compare2(a,b) result(compare)
-  type, bind(c) :: hand
-    integer(c_int32_t) :: cards(5)
-    integer(c_int32_t) :: bid
-  end type
-  type(hand) :: a,b
-  integer(2) :: compare
+function get_type2(cards)
+  implicit none
+  integer :: cards(5), counts(14), ccounts(14), get_type2
   integer :: n
-  integer :: acounts(14), bcounts(14)
-  integer :: aacounts(14), bbcounts(14)
-  acounts = 0
-  bcounts = 0
+  counts = 0
+  get_type2 = 0
+  ccounts = 0
   do n = 1, 5
-    if (a%cards(n) == 1) then
-      acounts = acounts + 1
+    if (cards(n) == 1) then
+      counts = counts + 1
     else
-      acounts(a%cards(n)) = acounts(a%cards(n)) + 1
-    end if
-    if (b%cards(n) == 1) then
-      bcounts = bcounts + 1
-    else
-      bcounts(b%cards(n)) = bcounts(b%cards(n)) + 1
+      counts(cards(n)) = counts(cards(n)) + 1
     end if
   end do
-  aacounts = 0
-  bbcounts = 0
   do n = 1, 5
-    aacounts(a%cards(n)) = aacounts(a%cards(n)) + 1
-    bbcounts(b%cards(n)) = bbcounts(b%cards(n)) + 1
+    ccounts(cards(n)) = ccounts(cards(n)) + 1
   end do
-  
-  if (any(acounts==5) .and. .not.any(bcounts==5)) then
-    compare = 1
+  if (any(counts==5)) then
+    get_type2 = 6
     return
   end if
-  if (any(bcounts==5) .and. .not.any(acounts==5)) then
-    compare = -1
+  if (any(counts==4)) then
+    get_type2 = 5
     return
   end if
-  if (any(bcounts==5) .or. any(acounts==5)) goto 5
-
-  if (any(acounts==4) .and. .not.any(bcounts==4)) then
-    compare = 1
+  if (count(ccounts>1)==2 .and. (any(ccounts==3) .or. ccounts(1) ==1)) then
+    get_type2 = 4
     return
   end if
-  if (any(bcounts==4) .and. .not.any(acounts==4)) then
-    compare = -1
+  if (any(counts==3)) then
+    get_type2 = 3
     return
   end if
-  if (any(bcounts==4) .or. any(acounts==4)) goto 5
-
-  ! TODO Fix from here
-  if        ((count(aacounts>1)==2 .and. (any(aacounts==3) .or. aacounts(1) ==1)) &
-  .and. .not.(count(bbcounts>1)==2 .and. (any(bbcounts==3) .or. bbcounts(1) ==1))) then
-    compare = 1
+  if (count(ccounts==2)==2) then
+    get_type2 = 2
     return
   end if
-  if        ((count(bbcounts>1)==2 .and. (any(bbcounts==3) .or. bbcounts(1) ==1)) &
-  .and. .not.(count(aacounts>1)==2 .and. (any(aacounts==3) .or. aacounts(1) ==1))) then
-    compare = -1
+  if (any(counts==2)) then
+    get_type2 = 1
     return
   end if
-  if        ((count(bbcounts>1)==2 .and. (any(bbcounts==3) .or. bbcounts(1) ==1)) &
-  .or.       (count(aacounts>1)==2 .and. (any(aacounts==3) .or. aacounts(1) ==1))) goto 5
-
-  if (any(acounts==3) .and. .not.any(bcounts==3)) then
-    compare = 1
-    return
-  end if
-  if (any(bcounts==3) .and. .not.any(acounts==3)) then
-    compare = -1
-    return
-  end if
-  if (any(bcounts==3) .or. any(acounts==3)) goto 5
-
-
-  if        ((count(aacounts==2)==2 .or. (aacounts(1) == 1 .and. any(aacounts==2))) &
-  .and. .not.(count(bbcounts==2)==2 .or. (bbcounts(1) == 1 .and. any(bbcounts==2)))) then
-    compare = 1
-    return
-  end if
-  if        ((count(bbcounts==2)==2 .or. (bbcounts(1) == 1 .and. any(bbcounts==2))) &
-  .and. .not.(count(aacounts==2)==2 .or. (aacounts(1) == 1 .and. any(aacounts==2)))) then
-    compare = -1
-    return
-  end if
-
-  if (any(acounts==2) .and. .not.any(bcounts==2)) then
-    compare = 1
-    return
-  end if
-  if (any(bcounts==2) .and. .not.any(acounts==2)) then
-    compare = -1
-    return
-  end if
-
-5 do n = 1, 5
-    if ( a%cards(n) .lt. b%cards(n) ) then 
-      compare = -1
-      return
-    end if
-    if ( a%cards(n) .gt. b%cards(n) ) then 
-      compare = 1
-      return
-    end if
-  end do
-  compare = 0 
+  get_type2 = 0
 end function
 end subroutine

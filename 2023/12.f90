@@ -85,12 +85,10 @@ subroutine solver_b(input,ans)
   character(len=:), allocatable, target :: x
   integer :: n, s, d
   integer :: nums(100), nn, ncache(100)
-  integer(int64), allocatable :: worth(:,:)
-  integer, allocatable :: cache(:,:)
+  integer(int64), allocatable :: cache(:,:)
   ans = 0
 
-  allocate(cache(100,100))
-  allocate(worth(100,100))
+  allocate(cache(110,100))
 
   do n =1,size(input)
     p => input(n)%p
@@ -120,25 +118,24 @@ subroutine solver_b(input,ans)
     r => r(s:)
 
     ncache = 0
-    ans = ans + solve_b(r,nums(:nn),cache(:,:nn),worth(:,:nn),ncache(:nn))
+    cache = -1
+    ans = ans + solve_b(r,nums(:nn),cache(:,:nn))
   end do
 end subroutine
-recursive function solve_b(p, nums, cache, worth, ncache) result(possible)
+recursive function solve_b(p, nums, cache) result(possible)
   implicit none
   character(len=:), pointer :: p,r,q
   integer :: nums(:)
-  integer(int64) :: worth(:,:), possible
-  integer :: cur, x, ncache(:), n
-  integer :: cache(:,:)
-  possible = 0
+  integer(int64) :: possible, cache(:,:)
+  integer :: cur, x
   r => p
   cur = nums(1)
-  do n = 1,ncache(1)
-    if (len(p) == cache(n,1)) then
-      possible = worth(n,1)
+  possible = cache(len(p),1)
+  if (possible > -1) then
       return
-    end if
-  end do
+  else
+    possible = 0
+  end if
   do
     if (sum(nums)+(size(nums)-1) > len(r)) exit
 
@@ -155,7 +152,7 @@ recursive function solve_b(p, nums, cache, worth, ncache) result(possible)
       x = scan(r(cur+2:),'?#')
       if ( x == 0 ) exit
       q => r(cur+1+x:)
-      possible = possible + solve_b(q,nums(2:),cache(:,2:),worth(:,2:),ncache(2:))
+      possible = possible + solve_b(q,nums(2:),cache(:,2:))
     end if
 2   continue
     if (r(1:1) == '#') exit
@@ -163,8 +160,6 @@ recursive function solve_b(p, nums, cache, worth, ncache) result(possible)
     if (x==0) exit
     r => r(x+1:)
   end do
-  ncache(1) = ncache(1) + 1
-  cache(ncache(1),1) = len(p)
-  worth(ncache(1),1) = possible
+  cache(len(p),1) = possible
 end function
 end subroutine

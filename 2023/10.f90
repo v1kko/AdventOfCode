@@ -15,10 +15,9 @@ subroutine solver_a(input,ans)
   implicit none
   integer(int64) :: ans
   type(char_p), target :: input(:)
-  integer :: n, m, fdir, bdir
-  integer :: s(2), f(2), b(2), dirs(2,4)
+  integer :: n, m, fdir = 0, bdir = 0
+  integer :: s(2) = 0, f(2) = 0, b(2) = 0, dirs(2,4)
   character, allocatable :: map(:,:)
-  s = 0
 
   allocate(map(len(input(1)%p),size(input)))
   do n =1,size(map,2)
@@ -87,14 +86,12 @@ subroutine solver_b(input,ans)
   implicit none
   integer(int64) :: ans
   type(char_p), target :: input(:)
-  integer :: n, m, fdir 
-  integer :: s(2), f(2), dirs(2,4)
+  integer :: n, m, fdir = 0
+  integer :: s(2) = 0, f(2) = 0, dirs(2,4)
   character, allocatable :: map(:,:)
   logical, allocatable :: exploded(:,:)
   integer, allocatable :: fill(:,:)
   integer :: nfill
-  ans = 0
-  s = 0
 
   allocate(map(len(input(1)%p),size(input)))
   allocate(exploded(len(input(1)%p)*3,size(input)*3))

@@ -36,7 +36,7 @@ contains
 #include "7.f90"
 #include "8.f90"
 #include "9.f90"
-!#include "10.f90"
+#include "10.f90"
 !#include "11.f90"
 !#include "12.f90"
 !include "13.f90"
@@ -64,7 +64,7 @@ implicit none
   solver_list(7)%p => solver7
   solver_list(8)%p => solver8
   solver_list(9)%p => solver9
-  !solver_list(10)%p => solver10
+  solver_list(10)%p => solver10
   !solver_list(11)%p => solver11
   !solver_list(12)%p => solver12
   !solver_list(13)%p => solver13

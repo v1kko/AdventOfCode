@@ -17,7 +17,7 @@ subroutine solver_a(input,ans)
   type(char_p), target :: input(:)
   character, allocatable :: platform(:,:)
   character, allocatable :: state(:)
-  integer :: n, m
+  integer :: n, m, x
 
   allocate(platform(size(input),len(input(1)%p)))
   allocate(state(size(input)))
@@ -28,12 +28,19 @@ subroutine solver_a(input,ans)
     end do
   end do
   do n = 1, size(platform,2)
-    do
-      state = platform(:,n)
-      do m = 1, size(platform,1) -1
-        if (all(platform(m:m+1,n) == (/'.','O'/))) platform(m:m+1,n) = (/"O","."/)
-      end do
-      if (all(state == platform(:,n))) exit
+    do m = 2, size(platform,1)
+      if (platform(m,n) == 'O') then
+        platform(m,n) = '.'
+        do x = m-1,1,-1
+          if (platform(x,n) /= '.') then
+            platform(x+1,n) = 'O'
+            exit
+          end if
+        end do
+        if (x==0) then
+          platform(1,n) = 'O'
+        end if
+      end if
     end do
     do m = 1, size(platform,1)
       if (platform(m,n) == 'O') ans = ans + size(platform,1) - m + 1
@@ -45,13 +52,13 @@ subroutine solver_b(input,ans)
   implicit none
   integer(int64) :: ans
   type(char_p), target :: input(:)
-  character, allocatable :: platform(:,:)
+  character, allocatable :: platform(:,:), cache(:,:,:)
   character, allocatable :: state(:)
-  integer(int64) :: res(500)
-  integer :: n, m, s
+  integer(int64) :: res(200)
+  integer :: n, m, s, x
 
   allocate(platform(len(input(1)%p),size(input)))
-  allocate(state(size(input)))
+  allocate(cache(size(platform,1),size(platform,2),200))
   do n =1,size(platform,2)
     do m = 1, size(platform,1)
       platform(m,n) = input(n)%p(m:m)
@@ -62,61 +69,89 @@ subroutine solver_b(input,ans)
       if (platform(m,n) == 'O') ans = ans + size(platform,2) - n + 1
     end do
   end do
-  outer: do s = 1, 500
+
+  outer: do s = 1, 200
     ! North
     do n = 1, size(platform,1)
-      do
-        state = platform(n,:)
-        do m = 1, size(platform,2) -1
-          if (all(platform(n,m:m+1) == (/'.','O'/))) then
-            platform(n,m:m+1) = (/"O","."/)
-            ans = ans + 1
+      do m = 2, size(platform,2)
+        if (platform(n,m) == 'O') then
+          platform(n,m) = '.'
+          do x = m-1,1,-1
+            if (platform(n,x) /= '.') then
+              platform(n,x+1) = 'O'
+              exit
+            end if
+          end do
+          if (x==0) then
+            platform(n,1) = 'O'
           end if
-        end do
-        if (all(state == platform(n,:))) exit
+          ans = ans + (m-(x+1))
+        end if
       end do
     end do
     ! West
     do n = 1, size(platform,2)
-      do
-        state = platform(:,n)
-        do m = 1, size(platform,1) -1
-          if (all(platform(m:m+1,n) == (/'.','O'/))) platform(m:m+1,n) = (/"O","."/)
-        end do
-        if (all(state == platform(:,n))) exit
+      do m = 2, size(platform,1)
+        if (platform(m,n) == 'O') then
+          platform(m,n) = '.'
+          do x = m-1,1,-1
+            if (platform(x,n) /= '.') then
+              platform(x+1,n) = 'O'
+              exit
+            end if
+          end do
+          if (x==0) then
+            platform(1,n) = 'O'
+          end if
+        end if
       end do
     end do
     ! South
     do n = 1, size(platform,1)
-      do
-        state = platform(n,:)
-        do m = size(platform,2), 2, -1
-          if (all(platform(n,m-1:m) == (/'O','.'/))) then
-            platform(n,m-1:m) = (/".","O"/)
-            ans = ans - 1
+      do m = size(platform,2)-1, 1, -1
+        if (platform(n,m) == 'O') then
+          platform(n,m) = '.'
+          do x = m+1,size(platform,2)
+            if (platform(n,x) /= '.') then
+              platform(n,x-1) = 'O'
+              exit
+            end if
+          end do
+          if (x==size(platform,2)+1) then
+            platform(n,size(platform,2)) = 'O'
           end if
-        end do
-        if (all(state == platform(n,:))) exit
+          ans = ans - ((x-1)-m)
+        end if
       end do
     end do
     ! East
     do n = 1, size(platform,2)
-      do
-        state = platform(:,n)
-        do m = size(platform,1), 2, -1
-          if (all(platform(m-1:m,n) == (/'O','.'/))) platform(m-1:m,n) = (/".","O"/)
-        end do
-        if (all(state == platform(:,n))) exit
+      do m = size(platform,1)-1, 1, -1
+        if (platform(m,n) == 'O') then
+          platform(m,n) = '.'
+          do x = m+1,size(platform,1)
+            if (platform(x,n) /= '.') then
+              platform(x-1,n) = 'O'
+              exit
+            end if
+          end do
+          if (x==size(platform,1)+1) then
+            platform(size(platform,1),n) = 'O'
+          end if
+        end if
       end do
     end do
 
+    cache(:,:,s) = platform
     res(s) = ans
-    do n = s-1,s/2+1,-1
-      if (res(n) == ans) then
-        if (n == s-1) cycle outer
-        if (mod(1000000000-s,s-n) /= 0) cycle outer
-        if (.not. all(res(n-(s-n)+1:n) == res(n+1:s))) cycle outer
-        return
+
+    do n = s-1,1,-1
+      if (ans == res(n)) then
+        if (all(cache(:,:,n) == platform)) then
+          x = mod(1000000000-s,s-n)
+          ans = res(n + x)
+          return
+        end if
       end if
     end do
     !end if

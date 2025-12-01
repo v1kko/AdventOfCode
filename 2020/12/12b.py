@@ -24,7 +24,6 @@ class NavPC:
     wp = np.array(self.waypoint)
     c, s = int(round(np.cos(np.radians(x)))), int(round(np.sin(np.radians(x))))
     R = np.array(((c,-s),(s,c)))
-    print(R)
     self.waypoint = np.matmul(R,wp).tolist()
   def N(self, x):
     self.waypoint[0] = self.waypoint[0] + x
@@ -36,7 +35,7 @@ class NavPC:
     self.waypoint[1] = self.waypoint[1] - x
   def F(self, x):
     self.location = [sum(y) for y in zip(self.location, [ x * c for c in self.waypoint])]
-      
+
   def run(self):
     for instruction in self.program:
       self.instructions[instruction[0]](instruction[1])

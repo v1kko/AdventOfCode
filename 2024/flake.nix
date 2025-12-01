@@ -4,19 +4,13 @@
   outputs = { self, nixpkgs }:
   let
     pkgs = nixpkgs.legacyPackages.x86_64-linux;
-    mypython = pkgs.python313;
-  in with pkgs; with mypython.pkgs; {
+  in with pkgs; {
     devShell.x86_64-linux = mkShell { 
       buildInputs = [
-          elfkickers
-          gfortran
-          valgrind
-          gdb
-          nasm
-          mypython
-          numpy
-          cargo
-          rustc
+        pkgsCross.aarch64-multiplatform.buildPackages.gdb
+        pkgsCross.aarch64-multiplatform.buildPackages.gcc
+        pkgsCross.aarch64-multiplatform.buildPackages.glibc_multi
+        qemu
       ];
     };
   };

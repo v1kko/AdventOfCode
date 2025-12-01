@@ -1,6 +1,6 @@
 
 
-all: 2018.dir 2020.dir 2021.dir 2022.dir 2023.dir
+all: 2018.dir 2020.dir 2021.dir 2022.dir 2023.dir 2025.dir
 
 2018.dir:
 	${MAKE} -C 2018
@@ -18,3 +18,8 @@ all: 2018.dir 2020.dir 2021.dir 2022.dir 2023.dir
 2023.dir:
 	${MAKE} -C 2022 run
 
+2024.dir:
+	${MAKE} -C 2024 run
+
+2025.dir:
+	${MAKE} -C 2025 run

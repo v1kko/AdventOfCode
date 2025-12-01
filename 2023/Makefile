@@ -22,3 +22,6 @@ fmlib.a: fmsave.f95 fmzm90.f95 fm.f95
 	rm fm*.o
 	rm fmzm_*.mod
 	rm fmvals.mod
+
+%.run: %.txt aocdebug
+	./aocdebug $(basename $<)a $(basename $<)b

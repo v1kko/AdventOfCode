@@ -53,7 +53,6 @@ subroutine solver_b(input,ans)
   integer(int64) :: ans
   type(char_p), target :: input(:)
   character, allocatable :: platform(:,:), cache(:,:,:)
-  character, allocatable :: state(:)
   integer(int64) :: res(200)
   integer :: n, m, s, x
 

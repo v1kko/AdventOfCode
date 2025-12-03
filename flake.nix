@@ -18,6 +18,19 @@
           cargo
           rustc
       ];
+      shellHook = ''
+        # Allow the use of wheels.
+        SOURCE_DATE_EPOCH=$(date +%s)
+
+        # Setup the virtual environment if it doesn't already exist.
+        VENV=.venv
+        if test ! -d $VENV; then
+          python -m venv $VENV
+        fi
+
+        export PYTHONPATH=`pwd`/$VENV/${mypython.sitePackages}/:$PYTHONPATH
+        source ./$VENV/bin/activate
+        '';
     };
   };
 
